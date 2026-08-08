@@ -1,0 +1,911 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIT14 — خطتك في البيت</title>
+<style>
+:root{--bg:#07090d;--panel:#0f131a;--panel2:#151a22;--gold:#f5b72e;--gold2:#ffe09a;--text:#f7f8fb;--muted:#9ba5b5;--line:#252c37;--green:#47d39a;--danger:#ff7373}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at 75% 0,#2a2110 0,transparent 35%),#07090d}
+button,a{font:inherit}button{cursor:pointer;font-family:inherit}.app{min-height:100vh}
+button.card,button.menuBtn,button.btn,button.back{appearance:none;-webkit-appearance:none;margin:0;font-size:inherit}
+button.card{display:block;text-align:right}
+.top{height:70px;position:sticky;top:0;z-index:50;background:#080a0ed9;backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.topin{max-width:1180px;height:100%;margin:auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.topin>div:last-child{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.topin>div:last-child::-webkit-scrollbar{display:none}
+.topin .menuBtn{white-space:nowrap}
+.logo{font-weight:1000;font-size:24px}.logo i{color:var(--gold);font-style:normal}
+.menuBtn{border:1px solid var(--line);background:var(--panel);color:#fff;padding:9px 13px;border-radius:12px}
+.page{display:none;animation:fade .25s ease}.page.active{display:block}@keyframes fade{from{opacity:.1;transform:translateY(7px)}to{opacity:1;transform:none}}
+.container{max-width:1180px;margin:auto;padding:28px 20px 60px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:center;min-height:calc(100vh - 70px)}
+.kicker{color:var(--gold2);font-weight:900;font-size:13px;letter-spacing:.5px}.hero h1{font-size:clamp(42px,7vw,78px);line-height:1.02;margin:12px 0}.gold{color:var(--gold)}
+.sub{color:var(--muted);font-size:18px;max-width:650px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.btn{border:0;border-radius:13px;padding:12px 17px;background:var(--gold);color:#111;font-weight:900}.btn.secondary{background:var(--panel2);color:#fff;border:1px solid var(--line)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.heroPhoto{height:520px;border-radius:28px;overflow:hidden;border:1px solid #323a47;box-shadow:0 30px 100px #000a;background:linear-gradient(135deg,#252016,#11151c);position:relative}
+.heroPhoto img{width:100%;height:100%;object-fit:cover;display:block}.photoOverlay{position:absolute;inset:auto 18px 18px 18px;background:#07090dcc;border:1px solid #ffffff1c;border-radius:18px;padding:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:25px}.stat{background:var(--panel);border:1px solid var(--line);padding:15px;border-radius:16px}.stat b{font-size:24px}.stat small{display:block;color:var(--muted)}
+.pageHead{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:20px 0 25px}.pageHead h2{font-size:38px;margin:0}.pageHead p{margin:0;color:var(--muted)}
+.back{background:var(--panel);color:#fff;border:1px solid var(--line);padding:9px 13px;border-radius:12px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.card{background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:20px;padding:20px}.card h3{margin:5px 0 7px}.card p{color:var(--muted);margin:0}.emoji{font-size:38px}.tag{display:inline-block;background:var(--gold);color:#111;font-size:11px;font-weight:900;border-radius:30px;padding:2px 9px}
+.food{overflow:hidden;padding:0}.food img{width:100%;height:190px;object-fit:cover;display:block}.food .inside{padding:17px}
+.proteinBox{display:grid;grid-template-columns:1fr 1fr;gap:15px}.number{font-size:45px;font-weight:1000;color:var(--gold)}.bar{height:13px;background:#242b35;border-radius:99px;overflow:hidden}.bar span{display:block;height:100%;width:72%;background:linear-gradient(90deg,var(--gold),#ffe59e)}
+.notice{background:#1c160a;border:1px solid #584319;border-radius:18px;padding:17px}.notice b{color:var(--gold2)}
+.daygrid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}.day{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 8px;text-align:center;min-height:90px}.day strong{display:block;color:var(--gold)}.day.sel{border-color:var(--gold);box-shadow:0 0 0 1px #f5b72e44 inset}
+.exercise{display:flex;gap:13px;align-items:center;padding:13px 0;border-bottom:1px solid var(--line)}.exercise:last-child{border:0}.exicon{width:56px;height:56px;border-radius:15px;background:#201b10;display:grid;place-items:center;font-size:26px}.sets{margin-right:auto;color:var(--gold);font-weight:900;white-space:nowrap}
+.videoGrid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}.video{background:#000;border-radius:20px;overflow:hidden;border:1px solid var(--line)}.video iframe{width:100%;aspect-ratio:16/9;border:0;display:block}.videoInfo{padding:15px;background:var(--panel)}
+.videoList{display:grid;gap:10px}.videoLink{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:13px;color:#fff}.videoLink span{color:var(--muted);font-size:12px}
+.tracker{display:grid;grid-template-columns:1fr 1fr;gap:15px}.check label{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);color:#dce0e7}.check input{width:18px;height:18px;accent-color:var(--gold)}
+.timer{font-size:52px;font-weight:1000;text-align:center;color:var(--gold);margin:15px}.timerBtns{display:flex;gap:8px;justify-content:center}
+footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var(--muted)}
+@media(max-width:850px){.hero,.proteinBox,.videoGrid,.tracker{grid-template-columns:1fr}.heroPhoto{height:360px}.grid{grid-template-columns:1fr 1fr}.daygrid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.hero h1{font-size:46px}.container{padding-inline:14px}}
+
+/* ===== تصوير السعرات ===== */
+.calZone{text-align:center;padding:44px 20px;border:2px dashed #4a3d1c;border-radius:20px;background:repeating-linear-gradient(135deg,rgba(245,183,46,.04) 0 10px,transparent 10px 20px)}
+.calZone .emoji{font-size:50px;margin-bottom:14px}
+.calZone h3{margin:0 0 6px}
+#calPreviewArea{display:none}
+.calPreviewWrap{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line)}
+.calPreviewWrap img{width:100%;display:block;max-height:380px;object-fit:cover}
+.calRetake{position:absolute;top:10px;left:10px;background:#07090dcc;color:#fff;border:1px solid #ffffff2a;padding:9px 14px;border-radius:30px}
+#calLoadingArea{display:none;align-items:center;justify-content:center;gap:10px;padding:34px 0}
+.calSpinner{width:22px;height:22px;border:3px solid #2a2110;border-top-color:var(--gold);border-radius:50%;animation:calSpin .8s linear infinite}
+@keyframes calSpin{to{transform:rotate(360deg)}}
+.calResult{animation:fade .35s ease}
+.calTotal{text-align:center;padding:20px 10px 16px;border-bottom:1px solid var(--line)}
+.calNum{font-size:52px;font-weight:1000;color:var(--gold)}
+.calNum span{font-size:16px;color:var(--text);font-weight:700;margin-right:6px}
+.calName{margin-top:6px;font-weight:900}
+.calConf{margin-top:4px;font-size:12px;color:var(--muted)}
+.calMacros{display:flex;gap:10px;margin-top:16px}
+.calMacro{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center}
+.calMacro b{display:block;font-size:19px;font-weight:900}
+.calMacro span{font-size:10px;color:var(--muted)}
+.calMacro.p{border-bottom:3px solid var(--green)}
+.calMacro.c{border-bottom:3px solid var(--gold)}
+.calMacro.f{border-bottom:3px solid var(--danger)}
+.calItems{margin-top:18px}
+.calItems h4{font-size:12px;color:var(--muted);margin-bottom:8px}
+.calItemRow{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line)}
+.calItemRow b{color:var(--gold)}
+.calErr{margin-top:14px;padding:14px;border-radius:14px;background:#2a120f;border:1px solid #5a2a24;color:#ffb3ab;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="topin"><div class="logo">FIT<i>14</i></div><div style="display:flex;gap:8px;align-items:center">
+<button class="menuBtn" data-go="home">⌂ الرئيسية</button>
+<button class="menuBtn" data-go="food">🍽️ الأكل</button>
+<button class="menuBtn" data-go="workout">🏋️ التمارين</button>
+<button class="menuBtn" data-go="calories">📸 تصوير السعرات</button>
+<button class="menuBtn" data-go="achievements">🏆 الإنجازات</button>
+<button class="menuBtn" data-go="reports">📊 التقارير</button>
+</div></div></header>
+
+<main>
+<!-- HOME -->
+<section id="home" class="page active">
+<div class="container">
+<div class="hero">
+<div>
+<div class="kicker">HOME FITNESS • FOOD • STRENGTH</div>
+<h1>خطتك.<br><span class="gold">بشكل مرتب.</span></h1>
+<p class="sub">كل شيء في صفحات منفصلة داخل نفس ملف HTML. اضغط على القسم الذي تريده وانتقل له فورًا.</p>
+<div class="actions">
+<button class="btn" data-go="food">🍽️ خطة الأكل</button>
+<button class="btn secondary" data-go="workout">🏋️ التمارين</button>
+<button class="btn secondary" data-go="calories">📸 تصوير السعرات</button>
+</div>
+<div class="stats">
+<div class="stat"><b>48</b><small>كجم تقريبًا</small></div><div class="stat"><b>169–170</b><small>سم تقريبًا</small></div><div class="stat"><b>50–65g</b><small>بروتين تقريبي للخطة</small></div><div class="stat"><b>8–10h</b><small>نوم</small></div>
+</div>
+</div>
+<div class="heroPhoto">
+<img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_1200,q_auto,f_auto/single-meal-images/db9ikz5bxddya890pmbx" alt="وجبة خفيفة عالية البروتين" onerror="this.style.display='none'">
+<div class="photoOverlay"><b>هدفنا</b><br><span style="color:var(--muted)">قوة + عضلات + لياقة، بدون تجويع أو تنشيف قاسي.</span></div>
+</div>
+</div>
+
+<div style="margin-top:10px">
+<div class="pageHead" style="margin-bottom:15px"><div><h2 style="font-size:28px">📋 كل الأقسام</h2><p>تقدر تروح لأي قسم من هنا مباشرة.</p></div></div>
+<div class="grid">
+<button class="card" data-go="food" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">🍽️</div><h3>خطة الأكل</h3><p>وجبات، سناكات، ومشروبات بروتين.</p></button>
+<button class="card" data-go="workout" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">🏋️</div><h3>برنامج التمارين</h3><p>دنابل + وزن جسم لكل يوم.</p></button>
+<button class="card" data-go="calories" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">📸</div><h3>تصوير السعرات</h3><p>صوّر أكلك واحصل على السعرات فورًا.</p></button>
+<button class="card" data-go="videos" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">▶️</div><h3>فيديوهات الشرح</h3><p>شرح كل حركة خطوة بخطوة.</p></button>
+<button class="card" data-go="week" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">📅</div><h3>الجدول الأسبوعي</h3><p>وش تسوي كل يوم بالأسبوع.</p></button>
+<button class="card" data-go="achievements" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">🏆</div><h3>إنجازات اليوم</h3><p>تمارين، أكل، وبروتين اليوم.</p></button>
+<button class="card" data-go="reports" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">📊</div><h3>التقارير</h3><p>سجل أسبوعك وحمّل تقرير PDF.</p></button>
+<button class="card" data-go="tracker" style="text-align:right;width:100%;border:1px solid var(--line)"><div class="emoji">✅</div><h3>المتابعة</h3><p>عادات يومية + مؤقت تمرين.</p></button>
+</div>
+</div>
+</div>
+</section>
+
+<!-- FOOD -->
+<section id="food" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>🍽️ خطة الأكل</h2><p>وجبات خفيفة + سناكات + مشروبات بروتين.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="proteinBox">
+<div class="card"><div class="muted">بروتين الخطة التقريبي</div><div class="number">50–65g</div><div class="bar"><span></span></div><p style="margin-top:10px">ليس رقمًا طبيًا إلزاميًا. الهدف توزيع مصادر البروتين خلال اليوم.</p></div>
+<div class="card"><div class="emoji">🥛</div><h3>حليب بروتين المراعي</h3><p>المراعي تذكر أن حليب البروتين 400 مل يحتوي على <b style="color:var(--gold)">34g بروتين</b> للعبوة في المنتج الظاهر. راجع الملصق لأن القيم تختلف حسب الصنف.</p></div>
+</div>
+<h3 style="margin-top:25px">وجبات خفيفة</h3>
+<div class="grid">
+<article class="card food"><img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_1200,q_auto,f_auto/single-meal-images/db9ikz5bxddya890pmbx" alt="ساندويتش دجاج"><div class="inside"><span class="tag">غداء</span><h3>ساندويتش دجاج مشوي</h3><p>دجاج + خبز + خضار + زبادي. خفيف وأسهل من وجبة كبيرة.</p></div></article>
+<article class="card"><div class="emoji">🍳</div><span class="tag">فطور</span><h3>بيض + خبز + فاكهة</h3><p>2 بيض + خبز + فاكهة + كوب حليب إذا احتجت.</p></article>
+<article class="card"><div class="emoji">🥣</div><span class="tag">فطور</span><h3>زبادي + شوفان + موز</h3><p>زبادي + شوفان + موز، ويمكن إضافة كمية صغيرة من زبدة الفول.</p></article>
+<article class="card"><div class="emoji">🐟</div><span class="tag">عشاء</span><h3>تونة + خبز + خضار</h3><p>نصف علبة إلى علبة حسب جوعك، مع خبز وخضار.</p></article>
+<article class="card"><div class="emoji">🍌</div><span class="tag">سناك</span><h3>موز + حليب</h3><p>سناك بسيط خصوصًا حول التمرين.</p></article>
+<article class="card"><div class="emoji">🍓</div><span class="tag">مشروب</span><h3>سموثي فراولة</h3><p>حليب + فراولة + موزة صغيرة. لا تحتاج مسحوق بروتين إذا استخدمت حليب البروتين.</p></article>
+</div>
+<div class="notice" style="margin-top:18px"><b>مهم:</b> عمرك 14 سنة، فلا نستخدم عجز سعرات أو تنشيف قاسي. إذا أردت هدف سعرات أو زيادة وزن دقيقة، خلي ولي أمرك يتابع مع طبيب أطفال/أخصائي تغذية.</div>
+</div>
+</section>
+
+<!-- WORKOUT -->
+<section id="workout" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>🏋️ برنامج التمارين</h2><p>دنابل + وزن جسم + جهاز مشي.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="grid">
+<div class="card"><span class="tag">اليوم 1</span><h3>Upper Body</h3>
+<div class="exercise"><div class="exicon">💪</div><div><b>Biceps Curl</b><br><small class="muted">بايسبس</small></div><div class="sets">3×10–15</div></div>
+<div class="exercise"><div class="exicon">🔨</div><div><b>Hammer Curl</b><br><small class="muted">بايسبس</small></div><div class="sets">3×10–15</div></div>
+<div class="exercise"><div class="exicon">🙆</div><div><b>Shoulder Press</b><br><small class="muted">كتف</small></div><div class="sets">2×8–12</div></div></div>
+<div class="card"><span class="tag">اليوم 2</span><h3>Legs + Abs</h3>
+<div class="exercise"><div class="exicon">🦵</div><div><b>Goblet Squat</b><br><small class="muted">أرجل</small></div><div class="sets">3×8–15</div></div>
+<div class="exercise"><div class="exicon">🏋️</div><div><b>Romanian Deadlift</b><br><small class="muted">أرجل</small></div><div class="sets">3×8–12</div></div>
+<div class="exercise"><div class="exicon">🔥</div><div><b>Plank</b><br><small class="muted">بطن</small></div><div class="sets">3×20–45ث</div></div></div>
+<div class="card"><span class="tag">اليوم 4</span><h3>Upper Body 2</h3>
+<div class="exercise"><div class="exicon">🪽</div><div><b>One-Arm Row</b><br><small class="muted">ظهر</small></div><div class="sets">3×8–12</div></div>
+<div class="exercise"><div class="exicon">↔️</div><div><b>Lateral Raise</b><br><small class="muted">كتف</small></div><div class="sets">2×12–15</div></div>
+<div class="exercise"><div class="exicon">🏋️</div><div><b>Floor Press</b><br><small class="muted">صدر</small></div><div class="sets">3×8–12</div></div></div>
+<div class="card"><span class="tag">اليوم 5</span><h3>Legs + Abs 2</h3>
+<div class="exercise"><div class="exicon">🦵</div><div><b>Lunges</b><br><small class="muted">أرجل</small></div><div class="sets">2×8–12</div></div>
+<div class="exercise"><div class="exicon">🔥</div><div><b>Crunches</b><br><small class="muted">بطن</small></div><div class="sets">3×10–15</div></div>
+<div class="exercise"><div class="exicon">🔥</div><div><b>Leg Raises</b><br><small class="muted">بطن</small></div><div class="sets">3×8–12</div></div></div>
+<div class="card"><span class="tag">اليوم 3 و 6</span><h3>مشي / كارديو</h3>
+<div class="exercise"><div class="exicon">🏃</div><div><b>جهاز المشي</b><br><small class="muted">كارديو خفيف</small></div><div class="sets">15–20 دقيقة</div></div></div>
+</div>
+<div class="notice" style="margin-top:18px"><b>التدرج:</b> إذا صار الوزن سهلًا جدًا مع تكنيك ممتاز، زد زيادة صغيرة. لا تتمرن من خلال ألم حاد، وخل ولي أمرك يعرف بخطة التمرين.</div>
+</div>
+</section>
+
+<!-- CALORIES (تصوير السعرات) -->
+<section id="calories" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>📸 تصوير السعرات</h2><p>صوّر أكلك، والذكاء الاصطناعي يحسب لك السعرات فورًا.</p></div><button class="back" data-go="home">← القائمة</button></div>
+
+<div class="card">
+
+  <div id="calZone" class="calZone">
+    <div class="emoji">📸</div>
+    <h3>صوّر أكلك</h3>
+    <p class="muted" style="margin-top:6px">اضغط الزر ليفتح لك كاميرا الجوال مباشرة</p>
+    <button id="calCameraBtn" class="btn" style="width:100%;margin-top:22px">📸 فتح الكاميرا</button>
+    <input type="file" id="calCameraInput" accept="image/*" capture="environment" style="display:none">
+  </div>
+
+  <div id="calPreviewArea">
+    <div class="calPreviewWrap">
+      <img id="calPreviewImg" alt="صورة الأكل">
+      <button id="calRetakeBtn" class="calRetake">↺ تصوير مرة ثانية</button>
+    </div>
+    <button id="calAnalyzeBtn" class="btn" style="width:100%;margin-top:16px">🔥 احسب السعرات</button>
+  </div>
+
+  <div id="calLoadingArea">
+    <div class="calSpinner"></div>
+    <span>الذكاء الاصطناعي يحلل الأكل...</span>
+  </div>
+
+  <div id="calResultArea"></div>
+  <div id="calErrorArea"></div>
+
+</div>
+
+<div class="notice" style="margin-top:18px"><b>ملاحظة:</b> التقدير تقريبي وقد يختلف حسب حجم الحصة وطريقة التحضير. صوّر أكلك فقط — لا يمكن رفع صور من المعرض.</div>
+</div>
+</section>
+
+<!-- VIDEOS -->
+<section id="videos" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>▶️ مركز الفيديوهات</h2><p>فيديوهات تعليمية + روابط مباشرة لشرح كل حركة.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="videoGrid">
+<div class="video"><iframe src="https://www.youtube.com/embed/w86EalEoFRY" title="Dumbbell exercises at home" allowfullscreen></iframe><div class="videoInfo"><b>فيديو شامل: تمارين دنابل في البيت</b><p style="color:var(--muted);margin:5px 0 0">فيديو يشرح مجموعة من تمارين الدنابل المنزلية.</p></div></div>
+<div class="videoList">
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=push+up+proper+form"><b>💪 Push-up</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+press+proper+form"><b>🏋️ Dumbbell Press</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form"><b>🪽 One-arm Row</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=goblet+squat+proper+form"><b>🦵 Goblet Squat</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form"><b>🏋️ Romanian Deadlift</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=plank+proper+form"><b>🔥 Plank</b><span>شرح الحركة ↗</span></a>
+</div>
+</div>
+<div class="notice" style="margin-top:18px"><b>نصيحة:</b> شاهد شرح الحركة قبل زيادة الوزن، وركز على التكنيك أكثر من عدد الكيلوات.</div>
+</div>
+</section>
+
+<!-- WEEK -->
+<section id="week" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>📅 الجدول الأسبوعي</h2><p>اضغط على اليوم لتحديده.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="daygrid">
+<div class="day" onclick="this.classList.toggle('sel')"><strong>1</strong>Upper</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>2</strong>Legs + Abs</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>3</strong>مشي / راحة</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>4</strong>Upper</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>5</strong>Legs + Abs</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>6</strong>مشي اختياري</div>
+<div class="day" onclick="this.classList.toggle('sel')"><strong>7</strong>راحة</div>
+</div>
+</div>
+</section>
+
+
+<!-- ACHIEVEMENTS -->
+<section id="achievements" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>🏆 إنجازات اليوم</h2><p id="dayLabel">كل شيء تسويه اليوم يظهر هنا، ومع بداية يوم جديد يبدأ من الصفر.</p></div><button class="back" data-go="home">← القائمة</button></div>
+
+<div class="notice" id="doneBanner" style="display:none;border-color:#2f6b4f;background:#0d1c14;margin-bottom:15px"><b>🎉 اكتمل اليوم!</b> خلصت كل أهدافك اليوم. تقدر تحمّل تقرير PDF لهذا اليوم من الأسفل.</div>
+
+<div class="card" id="restCard">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+<div><b>🏖️ هل اليوم إجازة؟</b><br><small class="muted">إذا فعّلتها، ما راح يطلب منك تسجيل أكل ولا تمارين اليوم، ويحسب اليوم مكتمل تلقائيًا.</small></div>
+<button class="btn secondary" id="restToggleBtn" onclick="toggleRest()">تفعيل الإجازة</button>
+</div>
+<div class="notice" id="restBanner" style="display:none;margin-top:12px"><b>🏖️ اليوم مسجل كإجازة.</b> استمتع بالراحة، ما تحتاج تسجل شي.</div>
+</div>
+
+<div class="card" id="exerciseCard">
+<h3>🏋️ تمارين اليوم</h3>
+<p class="muted">علّم كل تمرين بعد ما تخلصه. العداد يتحدث فورًا، وتقدر تشوف بالضبط وش خلصت.</p>
+<div style="display:flex;align-items:center;gap:15px;margin:12px 0 18px">
+  <div class="number" id="exerciseValueTop">0/13</div>
+  <div><b>تمارين مكتملة</b><br><small class="muted" id="exerciseTotalLabel">من أصل 13 تمرين اليوم</small></div>
+</div>
+<div id="exerciseChecklist" class="check"></div>
+<div id="completedExercises" style="margin-top:15px"></div>
+</div>
+
+<div class="tracker" style="margin-top:15px" id="foodTracker">
+<div class="card"><h3>🍽️ وش أكلت اليوم؟</h3><div class="check">
+<label><input type="checkbox" data-food="breakfast"> أكلت الفطور</label>
+<label><input type="checkbox" data-food="lunch"> أكلت الغداء</label>
+<label><input type="checkbox" data-food="dinner"> أكلت العشاء</label>
+<label><input type="checkbox" data-food="snack"> أخذت سناك</label>
+<label><input type="checkbox" data-food="proteinDrink"> شربت مشروب البروتين</label>
+</div></div>
+
+<div class="card" id="proteinCard"><h3>🥩 بروتين اليوم</h3>
+<div class="number" id="proteinValue">0g</div>
+<div class="bar"><span id="proteinBar" style="width:0%"></span></div>
+<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:13px">
+<button class="btn" onclick="addProtein(5)">+5g</button>
+<button class="btn secondary" onclick="addProtein(10)">+10g</button>
+<button class="btn secondary" onclick="addProtein(34)">+34g</button>
+<button class="btn secondary" onclick="setProtein(0)">تصفير</button>
+</div>
+<p style="margin-top:10px">كل شيء تأكله من مصادر البروتين سجله هنا. زر 34g لحليب البروتين المذكور في الخطة.</p>
+</div>
+</div>
+
+<div class="grid" style="margin-top:15px">
+<div class="card"><span class="muted">💪 التمارين المكتملة</span><div class="number" id="exerciseValue">0/13</div></div>
+<div class="card"><span class="muted">🍽️ الوجبات المكتملة</span><div class="number" id="mealValue">0/5</div></div>
+<div class="card"><span class="muted">🎯 إنجاز اليوم</span><div class="number" id="dailyPercent">0%</div><div class="bar"><span id="dailyBar" style="width:0%"></span></div></div>
+</div>
+
+<div class="notice" style="margin-top:15px"><b>🔄 التصفير:</b> الإنجازات والأكل والبروتين وعدد التمارين تخص اليوم فقط. عند الساعة 12 بالليل يبدأ سجل يوم جديد من الصفر تلقائيًا، بينما التقرير الأسبوعي والـPDF يبقيان محفوظين.</div>
+
+<button class="btn" style="margin-top:15px" onclick="downloadDayPDF(today())">📄 تحميل تقرير اليوم PDF</button>
+</div>
+</section>
+
+<!-- REPORTS -->
+<section id="reports" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>📊 التقارير</h2><p>شوف هل أنت ماشي ممتاز، مقصر، أو أخذت راحة.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="grid">
+<div class="card"><span class="muted">أيام ممتازة</span><div class="number" id="greatDays">0</div><p>أيام حققت فيها أغلب أهدافك.</p></div>
+<div class="card"><span class="muted">أيام مقصّرة</span><div class="number" id="lowDays">0</div><p>أيام تحتاج فيها تحسين روتينك.</p></div>
+<div class="card"><span class="muted">أيام راحة</span><div class="number" id="restDays">0</div><p>الراحة محسوبة ولا تعتبر فشلًا.</p></div>
+</div>
+<div class="card" style="margin-top:15px">
+<h3>📈 حالة الأسبوع</h3>
+<div id="reportText" style="font-size:18px;font-weight:800;margin:10px 0">لم تبدأ بيانات الأسبوع بعد.</div>
+<div class="bar"><span id="weekBar" style="width:0%"></span></div>
+<p style="margin-top:10px">التقييم: 🟢 ماشي ممتاز • 🟡 يحتاج تحسين • 🔵 راحة مخططة</p>
+</div>
+<div class="card" style="margin-top:15px">
+<h3>📅 سجل الأسبوع</h3>
+<div id="weekLog" class="grid"></div>
+</div>
+<button class="btn" style="margin-top:15px" onclick="takeRest()">🏖️ تسجيل اليوم كإجازة</button>
+<button class="btn secondary" style="margin-top:15px" onclick="clearReports()">مسح التقارير</button>
+</div>
+</section>
+
+<!-- TRACKER -->
+<section id="tracker" class="page">
+<div class="container">
+<div class="pageHead"><div><h2>✅ المتابعة</h2><p>التقدم محفوظ على جهازك.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="tracker">
+<div class="card"><h3>عادات اليوم</h3><div class="check">
+<label><input type="checkbox" data-c> أكلت بشكل كافٍ بدون تجويع</label>
+<label><input type="checkbox" data-c> أخذت مصدر بروتين</label>
+<label><input type="checkbox" data-c> شربت ماء</label>
+<label><input type="checkbox" data-c> تمرنت / مشيت</label>
+<label><input type="checkbox" data-c> نمت 8–10 ساعات</label>
+</div></div>
+<div class="card"><h3>⏱️ مؤقت التمرين</h3><div class="timer" id="timer">00:30</div><div class="timerBtns"><button class="btn" onclick="startTimer()">ابدأ</button><button class="btn secondary" onclick="resetTimer()">إعادة</button></div></div>
+</div>
+</div>
+</section>
+</main>
+<footer>FIT<span style="color:var(--gold)">14</span> • كل الصفحات داخل ملف HTML واحد</footer>
+</div>
+<script>
+const pages = Array.from(document.querySelectorAll('.page'));
+const exerciseNames = [
+  ['💪','Biceps Curl','3 × 10–15'],
+  ['🔨','Hammer Curl','3 × 10–15'],
+  ['🪽','One-Arm Row','3 × 8–12'],
+  ['🙆','Shoulder Press','2 × 8–12'],
+  ['↔️','Lateral Raise','2 × 12–15'],
+  ['🏋️','Floor Press','3 × 8–12'],
+  ['🦵','Goblet Squat','3 × 8–15'],
+  ['🦵','Lunges','2 × 8–12'],
+  ['🏋️','Romanian Deadlift','3 × 8–12'],
+  ['🔥','Crunches','3 × 10–15'],
+  ['🔥','Leg Raises','3 × 8–12'],
+  ['🔥','Plank','3 × 20–45ث'],
+  ['🏃','جهاز المشي','15–20 دقيقة']
+];
+
+function showPage(id){
+  const target=document.getElementById(id);
+  if(!target)return;
+  pages.forEach(p=>p.classList.remove('active'));
+  target.classList.add('active');
+  window.scrollTo(0,0);
+  if(id==='achievements') renderAchievements();
+  if(id==='reports') renderReports();
+}
+document.addEventListener('click',function(ev){
+  const b=ev.target.closest('[data-go]');
+  if(b){ev.preventDefault();showPage(b.getAttribute('data-go'));}
+});
+// يهتم بالتنقل عن طريق روابط الهاش العادية (الأزرار العلوية) — كانت هذي مفقودة
+// وهذا كان سبب عدم ظهور التمارين المنجزة عند الدخول من قائمة الإنجازات
+window.addEventListener('hashchange',()=>{
+  const id=location.hash.substring(1);
+  showPage(document.getElementById(id)?id:'home');
+});
+
+function today(){
+  const d=new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function todayLabel(){
+  const d=new Date();
+  return d.toLocaleDateString('ar-SA',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+function dayNumber(){
+  // يوم 1 هو أول مرة فتح فيها التطبيق، ويزيد كل يوم تلقائيًا
+  let start=localStorage.getItem('fit14-start-date');
+  if(!start){start=today();localStorage.setItem('fit14-start-date',start);}
+  const diff=Math.round((new Date(today())-new Date(start))/86400000);
+  return diff+1;
+}
+function loadDay(){
+  const key='fit14-day-'+today();
+  let d=JSON.parse(localStorage.getItem(key)||'null');
+  if(!d)d={food:{},protein:0,exercises:Array(exerciseNames.length).fill(false),rest:false};
+  d.food=d.food||{}; d.protein=Number(d.protein||0); d.exercises=Array.isArray(d.exercises)?d.exercises:Array(exerciseNames.length).fill(false);
+  while(d.exercises.length<exerciseNames.length)d.exercises.push(false);
+  d.rest=!!d.rest;
+  return d;
+}
+function saveDay(d){
+  localStorage.setItem('fit14-day-'+today(),JSON.stringify(d));
+  syncReportEntry(d); // يحفظ في التقارير أول بأول، مو بس عند الإغلاق
+}
+function computeScore(d){
+  if(d.rest) return 100;
+  const ex=d.exercises.filter(Boolean).length;
+  const meals=Object.values(d.food).filter(Boolean).length;
+  return Math.min(100,Math.round((ex/exerciseNames.length)*50+(meals/5)*30+Math.min(d.protein/60,1)*20));
+}
+function toggleRest(){
+  const d=loadDay();
+  d.rest=!d.rest;
+  saveDay(d);
+  renderAchievements();
+  renderReports();
+}
+function renderAchievements(){
+  const box=document.getElementById('exerciseChecklist');
+  if(!box)return;
+  const d=loadDay();
+  const label=document.getElementById('dayLabel');
+  if(label) label.textContent=`اليوم ${dayNumber()} • ${todayLabel()}`;
+  const totalLabel=document.getElementById('exerciseTotalLabel');
+  if(totalLabel) totalLabel.textContent=`من أصل ${exerciseNames.length} تمرين اليوم`;
+
+  // وضع الإجازة: نخفي التمارين والأكل ونعتبر اليوم مكتمل تلقائيًا
+  const restBtn=document.getElementById('restToggleBtn');
+  const restBanner=document.getElementById('restBanner');
+  const exerciseCard=document.getElementById('exerciseCard');
+  const foodTracker=document.getElementById('foodTracker');
+  const proteinCard=document.getElementById('proteinCard');
+  if(restBtn) restBtn.textContent = d.rest ? 'إلغاء الإجازة' : 'تفعيل الإجازة';
+  if(restBanner) restBanner.style.display = d.rest ? 'block' : 'none';
+  [exerciseCard,foodTracker,proteinCard].forEach(el=>{ if(el) el.style.display = d.rest ? 'none' : (el===foodTracker?'grid':'block'); });
+
+  box.innerHTML=exerciseNames.map((x,i)=>
+    `<label><input type="checkbox" data-ex="${i}" ${d.exercises[i]?'checked':''}> ${x[0]} <b>${x[1]}</b> <span style="margin-right:auto;color:var(--gold)">${x[2]}</span></label>`
+  ).join('');
+
+  box.querySelectorAll('[data-ex]').forEach(c=>{
+    c.addEventListener('change',()=>{
+      const n=loadDay();
+      n.exercises[Number(c.dataset.ex)]=c.checked;
+      saveDay(n);
+      renderAchievements(); // تحديث فوري
+    });
+  });
+
+  document.querySelectorAll('[data-food]').forEach(c=>{
+    c.checked=!!d.food[c.dataset.food];
+    c.onchange=()=>{
+      const n=loadDay();
+      n.food[c.dataset.food]=c.checked;
+      saveDay(n);
+      renderAchievements(); // تحديث فوري للعداد والنسبة
+    };
+  });
+
+  const protein=document.getElementById('proteinValue');
+  if(protein)protein.textContent=d.protein+'g';
+
+  const pbar=document.getElementById('proteinBar');
+  if(pbar)pbar.style.width=Math.min(100,d.protein/60*100)+'%';
+
+  const ex=d.exercises.filter(Boolean).length;
+  const meals=Object.values(d.food).filter(Boolean).length;
+
+  const top=document.getElementById('exerciseValueTop');
+  if(top) top.textContent = d.rest ? 'إجازة' : ex+'/'+exerciseNames.length;
+
+  const completed=document.getElementById('completedExercises');
+  if(completed){
+    const done=d.exercises.map((v,i)=>v?exerciseNames[i][1]:null).filter(Boolean);
+    completed.innerHTML = done.length
+      ? '<div class="notice"><b>✅ أنجزت اليوم:</b><br>'+done.map(x=>'• '+x).join('<br>')+'</div>'
+      : '<div class="notice"><b>📋 لم تكمل أي تمرين بعد.</b><br><span class="muted">علّم التمارين فوق بعد ما تخلصها.</span></div>';
+  }
+
+  const exEl=document.getElementById('exerciseValue');
+  if(exEl)exEl.textContent = d.rest ? '—' : ex+'/'+exerciseNames.length;
+
+  const mealEl=document.getElementById('mealValue');
+  if(mealEl)mealEl.textContent = d.rest ? '—' : meals+'/5';
+
+  const score=computeScore(d);
+  const pct=document.getElementById('dailyPercent');
+  if(pct)pct.textContent=score+'%';
+
+  const bar=document.getElementById('dailyBar');
+  if(bar)bar.style.width=score+'%';
+
+  const doneBanner=document.getElementById('doneBanner');
+  if(doneBanner) doneBanner.style.display = (score>=100) ? 'block' : 'none';
+
+  const live=document.getElementById('liveUpdate');
+  if(live)live.textContent=`● مباشر — ${meals}/5 وجبات • ${ex}/8 تمارين • ${d.protein}g بروتين`;
+}
+function addProtein(n){const d=loadDay();d.protein+=n;saveDay(d);renderAchievements();}
+function setProtein(n){const d=loadDay();d.protein=n;saveDay(d);renderAchievements();}
+
+function loadReports(){return JSON.parse(localStorage.getItem('fit14-reports')||'{}')}
+function saveReports(r){localStorage.setItem('fit14-reports',JSON.stringify(r))}
+// يحفظ حالة اليوم في التقارير فورًا مع كل تغيير، مو بس عند إغلاق الصفحة
+function syncReportEntry(d){
+  const r=loadReports();
+  const ex=d.exercises.filter(Boolean).length, meals=Object.values(d.food).filter(Boolean).length;
+  r[today()]={...d,score:computeScore(d),ex,meals,dayNumber:dayNumber()};
+  saveReports(r);
+}
+function archiveToday(){ syncReportEntry(loadDay()); }
+function takeRest(){
+  const d=loadDay();
+  d.rest=true;
+  saveDay(d);
+  renderAchievements();
+  renderReports();
+  alert('تم تسجيل اليوم كإجازة 🏖️');
+}
+function renderReports(){
+  const r=loadReports(),keys=Object.keys(r).sort();
+  let great=0,low=0,rest=0;
+  keys.forEach(k=>{if(r[k].rest)rest++;else if((r[k].score||0)>=80)great++;else low++;});
+  const g=document.getElementById('greatDays');if(g)g.textContent=great;
+  const l=document.getElementById('lowDays');if(l)l.textContent=low;
+  const rr=document.getElementById('restDays');if(rr)rr.textContent=rest;
+  const total=great+low+rest,pct=total?Math.round(great/total*100):0;
+  const wb=document.getElementById('weekBar');if(wb)wb.style.width=pct+'%';
+  const rt=document.getElementById('reportText');
+  if(rt)rt.textContent=!total?'لم تبدأ بيانات الأسبوع بعد.':pct>=80?'🟢 ماشي ممتاز — استمر!':pct>=50?'🟡 ماشي، لكن عندك أشياء تحتاج تتحسن.':'🔴 تحتاج ترتب روتينك أكثر — بدون ضغط.';
+
+  const log=document.getElementById('weekLog');
+  if(log){
+    const rows=keys.slice().reverse();
+    log.innerHTML = rows.length ? rows.map(k=>{
+      const day=r[k];
+      const emoji = day.rest ? '🔵' : (day.score>=80?'🟢':day.score>=50?'🟡':'🔴');
+      const statusText = day.rest ? 'إجازة' : (day.score+'%');
+      return `<div class="card"><span class="muted">${k}</span><h3>${emoji} ${statusText}</h3>
+      <p>${day.rest?'يوم راحة':`${day.ex||0}/8 تمارين • ${day.meals||0}/5 وجبات • ${day.protein||0}g بروتين`}</p>
+      <button class="btn secondary" onclick="downloadDayPDF('${k}')">📄 تحميل PDF</button></div>`;
+    }).join('') : '<p class="muted">لسا ما فيه أيام مسجلة.</p>';
+  }
+}
+function clearReports(){if(confirm('مسح كل التقارير؟')){localStorage.removeItem('fit14-reports');renderReports();}}
+
+// ===== مولّد PDF مصغّر بدون أي مكتبة خارجية أو إنترنت — يشتغل 100% أوفلاين =====
+function pdfEscape(s){
+  return String(s).replace(/[^\x20-\x7E]/g,'?').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+}
+function buildSimplePDF(title, lines){
+  // كل سطر: {text, size} — نبني ملف PDF يدويًا بدون مكتبات
+  const pageW=595, pageH=842; // A4
+  let y=pageH-70;
+  const cmds=['BT'];
+  cmds.push('/F1 18 Tf');
+  cmds.push(`50 ${y} Td`);
+  cmds.push(`(${pdfEscape(title)}) Tj`);
+  cmds.push('/F1 11 Tf');
+  let prevY=y;
+  lines.forEach(line=>{
+    const size = line.size||11;
+    const gap = line.gapBefore||18;
+    y -= gap;
+    cmds.push(`/F1 ${size} Tf`);
+    cmds.push(`1 0 0 1 50 ${y} Tm`);
+    cmds.push(`(${pdfEscape(line.text)}) Tj`);
+  });
+  cmds.push('ET');
+  const content=cmds.join('\n');
+
+  const objs=[];
+  objs.push('<< /Type /Catalog /Pages 2 0 R >>');
+  objs.push('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+  objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pageW} ${pageH}] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>`);
+  objs.push('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+  objs.push(`<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+
+  let pdf='%PDF-1.4\n';
+  const offsets=[0];
+  objs.forEach((body,i)=>{
+    offsets.push(pdf.length);
+    pdf += `${i+1} 0 obj\n${body}\nendobj\n`;
+  });
+  const xrefStart=pdf.length;
+  pdf += `xref\n0 ${objs.length+1}\n0000000000 65535 f \n`;
+  for(let i=1;i<=objs.length;i++){
+    pdf += String(offsets[i]).padStart(10,'0')+' 00000 n \n';
+  }
+  pdf += `trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF`;
+
+  return new Blob([pdf], {type:'application/pdf'});
+}
+function triggerDownload(blob, filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+// توليد تقرير PDF ليوم معين (اليوم الحالي أو أي يوم سابق محفوظ) — بدون إنترنت
+function downloadDayPDF(dateKey){
+  archiveToday(); // نتأكد إن بيانات اليوم الحالي محفوظة قبل التصدير
+  const r=loadReports();
+  let day=r[dateKey];
+  if(!day && dateKey===today()){
+    const d=loadDay();
+    day={...d,score:computeScore(d),ex:d.exercises.filter(Boolean).length,meals:Object.values(d.food).filter(Boolean).length,dayNumber:dayNumber()};
+  }
+  if(!day){alert('ما فيه بيانات محفوظة لهذا اليوم.');return;}
+
+  const lines=[];
+  lines.push({text:'Date: '+dateKey, gapBefore:40});
+  lines.push({text:'Day #: '+(day.dayNumber||'-'), gapBefore:20});
+
+  if(day.rest){
+    lines.push({text:'Status: Rest day (100%)', gapBefore:20});
+  } else {
+    lines.push({text:'Completion: '+day.score+'%', gapBefore:20});
+    lines.push({text:'Exercises done: '+(day.ex||0)+'/'+exerciseNames.length, gapBefore:20});
+    lines.push({text:'Meals logged: '+(day.meals||0)+'/5', gapBefore:20});
+    lines.push({text:'Protein: '+(day.protein||0)+'g', gapBefore:20});
+
+    lines.push({text:'Exercises completed:', gapBefore:30});
+    const doneEx=(day.exercises||[]).map((v,i)=>v?exerciseNames[i][1]:null).filter(Boolean);
+    if(doneEx.length){
+      doneEx.forEach(name=>lines.push({text:'- '+name, gapBefore:16}));
+    } else {
+      lines.push({text:'- none yet', gapBefore:16});
+    }
+
+    const foodMap={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack',proteinDrink:'Protein drink'};
+    const doneFood=Object.keys(day.food||{}).filter(k=>day.food[k]).map(k=>foodMap[k]||k);
+    lines.push({text:'Meals eaten:', gapBefore:26});
+    if(doneFood.length){
+      doneFood.forEach(name=>lines.push({text:'- '+name, gapBefore:16}));
+    } else {
+      lines.push({text:'- none yet', gapBefore:16});
+    }
+  }
+
+  try{
+    const blob=buildSimplePDF('FIT14 - Daily Report', lines);
+    triggerDownload(blob, 'FIT14-report-'+dateKey+'.pdf');
+  }catch(err){
+    alert('صار خطأ أثناء توليد PDF: '+err.message);
+  }
+}
+
+// يتحقق كل دقيقة إذا تغير التاريخ (تعدّينا منتصف الليل) وهو التطبيق مفتوح
+// عشان يبدأ يوم جديد تلقائيًا بدون ما يحتاج المستخدم يعيد فتح الصفحة
+let __lastKnownDay=today();
+setInterval(()=>{
+  const t=today();
+  if(t!==__lastKnownDay){
+    archiveToday(); // نحفظ اليوم القديم في التقارير قبل ما نصفّر
+    __lastKnownDay=t;
+    renderAchievements();
+    renderReports();
+  }
+},60000);
+
+/* =====================================================
+   📸 تصوير السعرات — يحلل صورة الأكل عبر Gemini
+   المصدر مقيّد بالكاميرا فقط (capture="environment"):
+   ما فيه خيار "إضافة من المعرض"، فقط تصوير مباشر.
+===================================================== */
+// ⚠️ ضع هنا رابط الـ Worker اللي أنشأته على Cloudflare (بدون أي مفتاح داخل هذا الملف)
+// مثال: "https://food-calories-proxy.username.workers.dev"
+const CAL_PROXY_URL = "https://morning-math-f03a.eez69706.workers.dev";
+
+const calCameraBtn=document.getElementById('calCameraBtn');
+const calCameraInput=document.getElementById('calCameraInput');
+const calPreviewArea=document.getElementById('calPreviewArea');
+const calPreviewImg=document.getElementById('calPreviewImg');
+const calRetakeBtn=document.getElementById('calRetakeBtn');
+const calAnalyzeBtn=document.getElementById('calAnalyzeBtn');
+const calZone=document.getElementById('calZone');
+const calLoadingArea=document.getElementById('calLoadingArea');
+const calResultArea=document.getElementById('calResultArea');
+const calErrorArea=document.getElementById('calErrorArea');
+
+let calBase64=null, calMediaType=null;
+
+if(calCameraBtn){
+  calCameraBtn.addEventListener('click',()=>calCameraInput.click());
+}
+
+if(calCameraInput){
+  calCameraInput.addEventListener('change',ev=>{
+    const file=ev.target.files[0];
+    if(!file)return;
+    calHandleImage(file);
+  });
+}
+
+function calHandleImage(file){
+  if(!file.type.startsWith('image/')){
+    calErrorArea.innerHTML='<div class="calErr">الملف ليس صورة.</div>';
+    return;
+  }
+  calMediaType=file.type;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    const result=reader.result;
+    calBase64=result.split(',')[1];
+    calPreviewImg.src=result;
+    calZone.style.display='none';
+    calPreviewArea.style.display='block';
+    calErrorArea.innerHTML='';
+    calResultArea.innerHTML='';
+  };
+  reader.readAsDataURL(file);
+}
+
+if(calRetakeBtn){
+  calRetakeBtn.addEventListener('click',()=>{
+    calCameraInput.value='';
+    calBase64=null; calMediaType=null;
+    calPreviewArea.style.display='none';
+    calZone.style.display='block';
+    calResultArea.innerHTML='';
+    calErrorArea.innerHTML='';
+  });
+}
+
+if(calAnalyzeBtn){
+  calAnalyzeBtn.addEventListener('click',calAnalyzeFood);
+}
+
+async function calAnalyzeFood(){
+  if(!calBase64)return;
+
+  if(!CAL_PROXY_URL || CAL_PROXY_URL.includes('username')){
+    calErrorArea.innerHTML='<div class="calErr">حط رابط الـ Worker (CAL_PROXY_URL) داخل الكود.</div>';
+    return;
+  }
+
+  calPreviewArea.style.display='none';
+  calLoadingArea.style.display='flex';
+  calResultArea.innerHTML='';
+  calErrorArea.innerHTML='';
+  calAnalyzeBtn.disabled=true;
+
+  try{
+    const responseSchema={
+      type:"OBJECT",
+      properties:{
+        dish_name:{type:"STRING"},
+        total_calories:{type:"INTEGER"},
+        confidence:{type:"STRING",enum:["عالية","متوسطة","منخفضة"]},
+        protein_g:{type:"NUMBER"},
+        carbs_g:{type:"NUMBER"},
+        fat_g:{type:"NUMBER"},
+        items:{
+          type:"ARRAY",
+          items:{
+            type:"OBJECT",
+            properties:{
+              name:{type:"STRING"},
+              calories:{type:"INTEGER"}
+            },
+            required:["name","calories"]
+          }
+        }
+      },
+      required:["dish_name","total_calories","confidence","protein_g","carbs_g","fat_g","items"]
+    };
+
+    const response=await fetch(CAL_PROXY_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:[{
+          parts:[
+            {inline_data:{mime_type:calMediaType,data:calBase64}},
+            {text:`
+أنت خبير في تحليل الطعام والسعرات.
+حلل صورة الطعام.
+حدد:
+1. اسم الوجبة.
+2. إجمالي السعرات.
+3. البروتين.
+4. الكربوهيدرات.
+5. الدهون.
+6. كل مكون ظاهر في الصورة وسعراته.
+قدّر حجم الحصة من الصورة.
+لا تضف مكونات غير ظاهرة.
+إذا لم يكن هناك طعام واضح:
+اجعل total_calories = 0
+و items = [].
+أجب بالبيانات المطلوبة فقط.
+            `}
+          ]
+        }],
+        generationConfig:{
+          temperature:0.1,
+          responseMimeType:'application/json',
+          responseSchema:responseSchema
+        }
+      })
+    });
+
+    const data=await response.json();
+
+    if(!response.ok){
+      console.error('Gemini Error:',data);
+      throw new Error(data?.error?.message || 'خطأ في Gemini API');
+    }
+
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!text){
+      console.error('Gemini Response:',data);
+      throw new Error('Gemini لم يرجع نتيجة.');
+    }
+
+    let result;
+    try{
+      result=JSON.parse(text);
+    }catch(error){
+      console.error('JSON:',text);
+      throw new Error('Gemini رجع بيانات غير صالحة.');
+    }
+
+    calLoadingArea.style.display='none';
+    calAnalyzeBtn.disabled=false;
+    calRenderResult(result);
+
+  }catch(error){
+    console.error(error);
+    calLoadingArea.style.display='none';
+    calPreviewArea.style.display='block';
+    calAnalyzeBtn.disabled=false;
+    calErrorArea.innerHTML=`<div class="calErr">صار خطأ أثناء التحليل.<br><br>${calEscapeHtml(error.message)}</div>`;
+  }
+}
+
+function calRenderResult(d){
+  const calories=Number(d.total_calories)||0;
+
+  if(calories<=0){
+    calResultArea.innerHTML=`<div class="calResult"><div class="calErr">ما قدرت أتعرف على الطعام. حاول تصور الأكل من زاوية أوضح.</div></div>`;
+    calPreviewArea.style.display='block';
+    return;
+  }
+
+  let itemsHtml='';
+  if(Array.isArray(d.items)){
+    itemsHtml=d.items.map(item=>`
+      <div class="calItemRow">
+        <span>${calEscapeHtml(item.name||'مكون')}</span>
+        <b>${Number(item.calories)||0} سعرة</b>
+      </div>
+    `).join('');
+  }
+
+  calResultArea.innerHTML=`
+    <div class="calResult">
+      <div class="calTotal">
+        <div class="calNum">${calories}<span>سعرة حرارية</span></div>
+        <div class="calName">${calEscapeHtml(d.dish_name||'وجبة')}</div>
+        <div class="calConf">دقة التقدير: ${calEscapeHtml(d.confidence||'متوسطة')}</div>
+      </div>
+      <div class="calMacros">
+        <div class="calMacro p"><b>${Number(d.protein_g)||0}g</b><span>بروتين</span></div>
+        <div class="calMacro c"><b>${Number(d.carbs_g)||0}g</b><span>كربوهيدرات</span></div>
+        <div class="calMacro f"><b>${Number(d.fat_g)||0}g</b><span>دهون</span></div>
+      </div>
+      ${itemsHtml ? `<div class="calItems"><h4>مكونات الوجبة</h4>${itemsHtml}</div>` : ''}
+    </div>
+  `;
+
+  calPreviewArea.style.display='block';
+}
+
+function calEscapeHtml(value){
+  return String(value)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+
+window.addEventListener('load',()=>{
+  const id=location.hash.substring(1);
+  showPage(document.getElementById(id)?id:'home');
+  renderAchievements();
+  renderReports();
+});
+window.addEventListener('beforeunload',archiveToday);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden') archiveToday()});
+</script>
+</body>
+</html>
