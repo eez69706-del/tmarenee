@@ -77,6 +77,16 @@ footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var
 </head>
 <body>
 <div class="app">
+
+<!-- ONBOARDING OVERLAY — يطلع أول ما يفتح التطبيق لو ما فيه هدف محفوظ -->
+<div id="onboardOverlay" style="display:none;position:fixed;inset:0;z-index:999;background:#07090df2;backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div class="card" style="max-width:480px;width:100%;text-align:center">
+    <div style="font-size:44px;margin-bottom:8px">🎯</div>
+    <h2 style="margin:0 0 8px">وش هدفك الأساسي؟</h2>
+    <p class="muted" style="margin-bottom:20px">اختر هدف وبنرتب لك التمارين والأكل والفيديوهات حواليه. تقدر تغيّره أي وقت من الرئيسية.</p>
+    <div id="onboardGoalPicker" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+</div>
 <header class="top"><div class="topin"><div class="logo">FIT<i>14</i></div><div style="display:flex;gap:8px;align-items:center">
 <button class="menuBtn" data-go="home">⌂ الرئيسية</button>
 <button class="menuBtn" data-go="food">🍽️ الأكل</button>
@@ -99,6 +109,14 @@ footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var
 <button class="btn" data-go="food">🍽️ خطة الأكل</button>
 <button class="btn secondary" data-go="workout">🏋️ التمارين</button>
 <button class="btn secondary" data-go="calories">📸 تصوير السعرات</button>
+</div>
+<div class="card" id="goalCard" style="margin-top:22px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div><b>🎯 وش هدفك الأساسي؟</b><br><small class="muted">اختر هدف وبنرتب لك التمارين والأكل والفيديوهات حواليه.</small></div>
+    <button class="btn secondary" id="changeGoalBtn" style="display:none" onclick="showGoalPicker()">غيّر الهدف</button>
+  </div>
+  <div id="goalPicker" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"></div>
+  <div id="goalBadge" style="display:none;margin-top:12px" class="notice"></div>
 </div>
 <div class="stats">
 <div class="stat"><b>48</b><small>كجم تقريبًا</small></div><div class="stat"><b>169–170</b><small>سم تقريبًا</small></div><div class="stat"><b>50–65g</b><small>بروتين تقريبي للخطة</small></div><div class="stat"><b>8–10h</b><small>نوم</small></div>
@@ -130,18 +148,19 @@ footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var
 <section id="food" class="page">
 <div class="container">
 <div class="pageHead"><div><h2>🍽️ خطة الأكل</h2><p>وجبات خفيفة + سناكات + مشروبات بروتين.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="notice" id="foodGoalNote" style="display:none;margin-bottom:15px"></div>
 <div class="proteinBox">
 <div class="card"><div class="muted">بروتين الخطة التقريبي</div><div class="number">50–65g</div><div class="bar"><span></span></div><p style="margin-top:10px">ليس رقمًا طبيًا إلزاميًا. الهدف توزيع مصادر البروتين خلال اليوم.</p></div>
 <div class="card"><div class="emoji">🥛</div><h3>حليب بروتين المراعي</h3><p>المراعي تذكر أن حليب البروتين 400 مل يحتوي على <b style="color:var(--gold)">34g بروتين</b> للعبوة في المنتج الظاهر. راجع الملصق لأن القيم تختلف حسب الصنف.</p></div>
 </div>
 <h3 style="margin-top:25px">وجبات خفيفة</h3>
 <div class="grid">
-<article class="card food"><img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_1200,q_auto,f_auto/single-meal-images/db9ikz5bxddya890pmbx" alt="ساندويتش دجاج"><div class="inside"><span class="tag">غداء</span><h3>ساندويتش دجاج مشوي</h3><p>دجاج + خبز + خضار + زبادي. خفيف وأسهل من وجبة كبيرة.</p></div></article>
-<article class="card"><div class="emoji">🍳</div><span class="tag">فطور</span><h3>بيض + خبز + فاكهة</h3><p>2 بيض + خبز + فاكهة + كوب حليب إذا احتجت.</p></article>
-<article class="card"><div class="emoji">🥣</div><span class="tag">فطور</span><h3>زبادي + شوفان + موز</h3><p>زبادي + شوفان + موز، ويمكن إضافة كمية صغيرة من زبدة الفول.</p></article>
-<article class="card"><div class="emoji">🐟</div><span class="tag">عشاء</span><h3>تونة + خبز + خضار</h3><p>نصف علبة إلى علبة حسب جوعك، مع خبز وخضار.</p></article>
-<article class="card"><div class="emoji">🍌</div><span class="tag">سناك</span><h3>موز + حليب</h3><p>سناك بسيط خصوصًا حول التمرين.</p></article>
-<article class="card"><div class="emoji">🍓</div><span class="tag">مشروب</span><h3>سموثي فراولة</h3><p>حليب + فراولة + موزة صغيرة. لا تحتاج مسحوق بروتين إذا استخدمت حليب البروتين.</p></article>
+<article class="card food" data-meal="sandwich"><img src="https://res.cloudinary.com/solin-fitness/image/upload/c_scale,w_1200,q_auto,f_auto/single-meal-images/db9ikz5bxddya890pmbx" alt="ساندويتش دجاج"><div class="inside"><span class="tag">غداء</span><h3>ساندويتش دجاج مشوي</h3><p>دجاج + خبز + خضار + زبادي. خفيف وأسهل من وجبة كبيرة.</p></div></article>
+<article class="card" data-meal="eggs"><div class="emoji">🍳</div><span class="tag">فطور</span><h3>بيض + خبز + فاكهة</h3><p>2 بيض + خبز + فاكهة + كوب حليب إذا احتجت.</p></article>
+<article class="card" data-meal="yogurt"><div class="emoji">🥣</div><span class="tag">فطور</span><h3>زبادي + شوفان + موز</h3><p>زبادي + شوفان + موز، ويمكن إضافة كمية صغيرة من زبدة الفول.</p></article>
+<article class="card" data-meal="tuna"><div class="emoji">🐟</div><span class="tag">عشاء</span><h3>تونة + خبز + خضار</h3><p>نصف علبة إلى علبة حسب جوعك، مع خبز وخضار.</p></article>
+<article class="card" data-meal="banana"><div class="emoji">🍌</div><span class="tag">سناك</span><h3>موز + حليب</h3><p>سناك بسيط خصوصًا حول التمرين.</p></article>
+<article class="card" data-meal="smoothie"><div class="emoji">🍓</div><span class="tag">مشروب</span><h3>سموثي فراولة</h3><p>حليب + فراولة + موزة صغيرة. لا تحتاج مسحوق بروتين إذا استخدمت حليب البروتين.</p></article>
 </div>
 <div class="notice" style="margin-top:18px"><b>مهم:</b> عمرك 14 سنة، فلا نستخدم عجز سعرات أو تنشيف قاسي. إذا أردت هدف سعرات أو زيادة وزن دقيقة، خلي ولي أمرك يتابع مع طبيب أطفال/أخصائي تغذية.</div>
 </div>
@@ -151,6 +170,7 @@ footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var
 <section id="workout" class="page">
 <div class="container">
 <div class="pageHead"><div><h2>🏋️ برنامج التمارين</h2><p>دنابل + وزن جسم + جهاز مشي.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="notice" id="workoutGoalNote" style="display:none;margin-bottom:15px"></div>
 <div class="grid">
 <div class="card"><span class="tag">اليوم 1</span><h3>Upper Body</h3>
 <div class="exercise"><div class="exicon">💪</div><div><b>Biceps Curl</b><br><small class="muted">بايسبس</small></div><div class="sets">3×10–15</div></div>
@@ -216,15 +236,16 @@ footer{text-align:center;border-top:1px solid var(--line);padding:30px;color:var
 <section id="videos" class="page">
 <div class="container">
 <div class="pageHead"><div><h2>▶️ مركز الفيديوهات</h2><p>فيديوهات تعليمية + روابط مباشرة لشرح كل حركة.</p></div><button class="back" data-go="home">← القائمة</button></div>
+<div class="notice" id="videoGoalNote" style="display:none;margin-bottom:15px"></div>
 <div class="videoGrid">
-<div class="video"><iframe src="https://www.youtube.com/embed/w86EalEoFRY" title="Dumbbell exercises at home" allowfullscreen></iframe><div class="videoInfo"><b>فيديو شامل: تمارين دنابل في البيت</b><p style="color:var(--muted);margin:5px 0 0">فيديو يشرح مجموعة من تمارين الدنابل المنزلية.</p></div></div>
-<div class="videoList">
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=push+up+proper+form"><b>💪 Push-up</b><span>شرح الحركة ↗</span></a>
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+press+proper+form"><b>🏋️ Dumbbell Press</b><span>شرح الحركة ↗</span></a>
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form"><b>🪽 One-arm Row</b><span>شرح الحركة ↗</span></a>
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=goblet+squat+proper+form"><b>🦵 Goblet Squat</b><span>شرح الحركة ↗</span></a>
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form"><b>🏋️ Romanian Deadlift</b><span>شرح الحركة ↗</span></a>
-<a class="videoLink" target="_blank" href="https://www.youtube.com/results?search_query=plank+proper+form"><b>🔥 Plank</b><span>شرح الحركة ↗</span></a>
+<div class="video"><iframe id="mainVideoFrame" src="https://www.youtube.com/embed/w86EalEoFRY" title="Dumbbell exercises at home" allowfullscreen></iframe><div class="videoInfo"><b id="mainVideoTitle">فيديو شامل: تمارين دنابل في البيت</b><p style="color:var(--muted);margin:5px 0 0" id="mainVideoDesc">فيديو يشرح مجموعة من تمارين الدنابل المنزلية.</p></div></div>
+<div class="videoList" id="videoLinksList">
+<a class="videoLink" data-vid="pushup" target="_blank" href="https://www.youtube.com/results?search_query=push+up+proper+form"><b>💪 Push-up</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" data-vid="press" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+press+proper+form"><b>🏋️ Dumbbell Press</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" data-vid="row" target="_blank" href="https://www.youtube.com/results?search_query=one+arm+dumbbell+row+proper+form"><b>🪽 One-arm Row</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" data-vid="squat" target="_blank" href="https://www.youtube.com/results?search_query=goblet+squat+proper+form"><b>🦵 Goblet Squat</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" data-vid="deadlift" target="_blank" href="https://www.youtube.com/results?search_query=dumbbell+romanian+deadlift+proper+form"><b>🏋️ Romanian Deadlift</b><span>شرح الحركة ↗</span></a>
+<a class="videoLink" data-vid="plank" target="_blank" href="https://www.youtube.com/results?search_query=plank+proper+form"><b>🔥 Plank</b><span>شرح الحركة ↗</span></a>
 </div>
 </div>
 <div class="notice" style="margin-top:18px"><b>نصيحة:</b> شاهد شرح الحركة قبل زيادة الوزن، وركز على التكنيك أكثر من عدد الكيلوات.</div>
@@ -677,12 +698,141 @@ setInterval(()=>{
 },60000);
 
 /* =====================================================
-   📸 تصوير السعرات — يحلل صورة الأكل عبر Gemini
-   المصدر مقيّد بالكاميرا فقط (capture="environment"):
-   ما فيه خيار "إضافة من المعرض"، فقط تصوير مباشر.
+   🎯 نظام اختيار الهدف — خطط ثابتة مراجعة مسبقًا (مو حسابات
+   سعرات مولّدة من عمر/وزن)، فقط تُرتّب المحتوى الموجود أصلًا
+   حسب اهتمام المستخدم.
 ===================================================== */
-// ⚠️ ضع هنا رابط الـ Worker اللي أنشأته على Cloudflare (بدون أي مفتاح داخل هذا الملف)
-// مثال: "https://food-calories-proxy.username.workers.dev"
+const goalsData = {
+  muscle: {
+    title:'بناء عضلات', emoji:'💪',
+    heroLine:'تمارين دنابل ووزن جسم تركّز على بناء العضلات بثبات وأمان.',
+    foodNote:'وجبات غنية بالبروتين تدعم هدفك في بناء العضلات — بدون أي تقييد بالسعرات.',
+    foodOrder:['sandwich','eggs','tuna','yogurt','banana','smoothie'],
+    workoutNote:'ركّز على أيام الدنابل (Upper Body) بتكنيك صح قبل زيادة الوزن.',
+    videoTitle:'فيديو شامل: تمارين دنابل لبناء العضلات',
+    videoDesc:'فيديو يشرح مجموعة من تمارين الدنابل المنزلية المناسبة لهدفك.',
+    videoOrder:['press','row','deadlift','squat','pushup','plank']
+  },
+  fitness: {
+    title:'لياقة عامة', emoji:'🏃',
+    heroLine:'مزيج متوازن من الكارديو والتمارين الخفيفة يحافظ على لياقتك اليومية.',
+    foodNote:'وجبات متوازنة تعطيك طاقة يومك من غير تعقيد.',
+    foodOrder:['eggs','yogurt','sandwich','banana','tuna','smoothie'],
+    workoutNote:'وزّع وقتك بين المشي وتمارين وزن الجسم البسيطة كل أسبوع.',
+    videoTitle:'فيديو شامل: تمارين منزلية للياقة العامة',
+    videoDesc:'تمارين متنوعة تناسب أي مستوى وتحافظ على نشاطك.',
+    videoOrder:['pushup','squat','plank','row','press','deadlift']
+  },
+  strength: {
+    title:'قوة وتحمل', emoji:'🔥',
+    heroLine:'تمارين تعتمد على التكرار والثبات لبناء قوة وتحمل عضلي أفضل.',
+    foodNote:'بروتين وكربوهيدرات متوازنة تدعم تحملك في التمارين.',
+    foodOrder:['tuna','eggs','sandwich','yogurt','smoothie','banana'],
+    workoutNote:'ركّز على البلانك وتمارين البطن والأرجل لتقوية التحمل العضلي.',
+    videoTitle:'فيديو شامل: تمارين لتقوية القوة والتحمل',
+    videoDesc:'فيديو يشرح تمارين تساعدك تزيد قوتك وتحملك تدريجيًا.',
+    videoOrder:['squat','deadlift','plank','pushup','row','press']
+  },
+  flexibility: {
+    title:'مرونة ونشاط', emoji:'🤸',
+    heroLine:'حركة يومية خفيفة ومشي ومطّ يخلي جسمك مرن ونشيط.',
+    foodNote:'وجبات خفيفة وسهلة الهضم تناسب نشاطك اليومي.',
+    foodOrder:['yogurt','banana','smoothie','eggs','sandwich','tuna'],
+    workoutNote:'ابدأ يومك بجهاز المشي وخلي التمدد جزء ثابت بعد كل تمرين.',
+    videoTitle:'فيديو شامل: حركة ومرونة يومية',
+    videoDesc:'فيديو يشرح تمارين خفيفة تحافظ على مرونة جسمك ونشاطك.',
+    videoOrder:['pushup','plank','squat','row','press','deadlift']
+  }
+};
+
+function loadGoal(){ return localStorage.getItem('fit14-goal'); }
+function saveGoal(id){
+  localStorage.setItem('fit14-goal', id);
+  const overlay=document.getElementById('onboardOverlay');
+  if(overlay) overlay.style.display='none';
+  applyGoal();
+}
+
+function renderGoalButtons(containerId){
+  const container=document.getElementById(containerId);
+  if(!container) return;
+  container.innerHTML = Object.keys(goalsData).map(id=>{
+    const g=goalsData[id];
+    return `<button class="btn secondary" style="width:100%;text-align:right;padding:14px 16px" onclick="saveGoal('${id}')">${g.emoji} ${g.title}</button>`;
+  }).join('');
+}
+
+function showGoalPicker(){
+  const overlay=document.getElementById('onboardOverlay');
+  if(overlay){ renderGoalButtons('onboardGoalPicker'); overlay.style.display='flex'; }
+}
+
+function applyGoal(){
+  const id=loadGoal();
+  const overlay=document.getElementById('onboardOverlay');
+  const badge=document.getElementById('goalBadge');
+  const changeBtn=document.getElementById('changeGoalBtn');
+  const homePicker=document.getElementById('goalPicker');
+
+  if(!id){
+    // أول زيارة: اعرض شاشة الترحيب مباشرة
+    renderGoalButtons('onboardGoalPicker');
+    if(overlay) overlay.style.display='flex';
+    if(homePicker) homePicker.style.display='none';
+    if(badge) badge.style.display='none';
+    if(changeBtn) changeBtn.style.display='none';
+    document.querySelectorAll('#foodGoalNote,#workoutGoalNote,#videoGoalNote').forEach(el=>{ if(el) el.style.display='none'; });
+    return;
+  }
+
+  if(overlay) overlay.style.display='none';
+  if(homePicker) homePicker.style.display='none';
+  const g=goalsData[id];
+  if(!g) return;
+  if(changeBtn) changeBtn.style.display='inline-block';
+  if(badge){
+    badge.style.display='block';
+    badge.innerHTML=`<b>${g.emoji} هدفك الحالي: ${g.title}</b><br>${g.heroLine}`;
+  }
+
+  const foodNote=document.getElementById('foodGoalNote');
+  if(foodNote){ foodNote.style.display='block'; foodNote.innerHTML=`<b>${g.emoji} ${g.title}:</b> ${g.foodNote}`; }
+
+  const workoutNote=document.getElementById('workoutGoalNote');
+  if(workoutNote){ workoutNote.style.display='block'; workoutNote.innerHTML=`<b>${g.emoji} ${g.title}:</b> ${g.workoutNote}`; }
+
+  const videoNote=document.getElementById('videoGoalNote');
+  if(videoNote){ videoNote.style.display='block'; videoNote.innerHTML=`<b>${g.emoji} ${g.title}:</b> فيديوهات مرتبة حسب هدفك.`; }
+
+  const mvTitle=document.getElementById('mainVideoTitle');
+  const mvDesc=document.getElementById('mainVideoDesc');
+  if(mvTitle) mvTitle.textContent=g.videoTitle;
+  if(mvDesc) mvDesc.textContent=g.videoDesc;
+
+  // إعادة ترتيب كروت الأكل حسب أولوية الهدف
+  const foodGrid=document.querySelector('#food .grid');
+  if(foodGrid && g.foodOrder){
+    g.foodOrder.forEach(key=>{
+      const card=foodGrid.querySelector(`[data-meal="${key}"]`);
+      if(card) foodGrid.appendChild(card);
+    });
+  }
+
+  // إعادة ترتيب روابط الفيديوهات حسب أولوية الهدف
+  const videoList=document.getElementById('videoLinksList');
+  if(videoList && g.videoOrder){
+    g.videoOrder.forEach(key=>{
+      const link=videoList.querySelector(`[data-vid="${key}"]`);
+      if(link) videoList.appendChild(link);
+    });
+  }
+}
+
+/* =====================================================
+   📸 تصوير السعرات — يحلل صورة الأكل عبر Gemini
+   تم تعديل الكود ليكون متوافقاً مع Worker
+===================================================== */
+// ⚠️ ضع هنا رابط الـ Worker الخاص بك
 const CAL_PROXY_URL = "https://morning-math-f03a.eez69706.workers.dev";
 
 const calCameraBtn=document.getElementById('calCameraBtn');
@@ -759,83 +909,80 @@ async function calAnalyzeFood(){
   calAnalyzeBtn.disabled=true;
 
   try{
-    const responseSchema={
-      type:"OBJECT",
-      properties:{
-        dish_name:{type:"STRING"},
-        total_calories:{type:"INTEGER"},
-        confidence:{type:"STRING",enum:["عالية","متوسطة","منخفضة"]},
-        protein_g:{type:"NUMBER"},
-        carbs_g:{type:"NUMBER"},
-        fat_g:{type:"NUMBER"},
-        items:{
-          type:"ARRAY",
-          items:{
-            type:"OBJECT",
-            properties:{
-              name:{type:"STRING"},
-              calories:{type:"INTEGER"}
-            },
-            required:["name","calories"]
-          }
-        }
-      },
-      required:["dish_name","total_calories","confidence","protein_g","carbs_g","fat_g","items"]
-    };
-
+    // ⚠️ تم التعديل هنا: إرسال الصورة مع التعليمات في نفس الطلب
     const response=await fetch(CAL_PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         contents:[{
           parts:[
-            {inline_data:{mime_type:calMediaType,data:calBase64}},
-            {text:`
-أنت خبير في تحليل الطعام والسعرات.
-حلل صورة الطعام.
-حدد:
-1. اسم الوجبة.
-2. إجمالي السعرات.
-3. البروتين.
-4. الكربوهيدرات.
-5. الدهون.
-6. كل مكون ظاهر في الصورة وسعراته.
-قدّر حجم الحصة من الصورة.
-لا تضف مكونات غير ظاهرة.
-إذا لم يكن هناك طعام واضح:
-اجعل total_calories = 0
-و items = [].
-أجب بالبيانات المطلوبة فقط.
-            `}
+            {
+              inline_data: {
+                mime_type: calMediaType,
+                data: calBase64
+              }
+            },
+            {
+              text: `أنت خبير في تحليل الطعام. حلل هذه الصورة وأعطيني:
+1. اسم الوجبة
+2. إجمالي السعرات
+3. كمية البروتين (بالجرام)
+4. كمية الكربوهيدرات (بالجرام)
+5. كمية الدهون (بالجرام)
+6. قائمة المكونات الظاهرة مع سعرات كل مكون
+
+أجب فقط بالبيانات المطلوبة بهذا التنسيق:
+{
+  "dish_name": "اسم الوجبة",
+  "total_calories": 0,
+  "protein_g": 0,
+  "carbs_g": 0,
+  "fat_g": 0,
+  "items": [
+    {"name": "اسم المكون", "calories": 0}
+  ]
+}`
+            }
           ]
-        }],
-        generationConfig:{
-          temperature:0.1,
-          responseMimeType:'application/json',
-          responseSchema:responseSchema
-        }
+        }]
       })
     });
 
     const data=await response.json();
 
     if(!response.ok){
-      console.error('Gemini Error:',data);
-      throw new Error(data?.error?.message || 'خطأ في Gemini API');
+      console.error('Worker Error:',data);
+      throw new Error(data?.error?.message || data?.error || 'خطأ في تحليل الصورة');
     }
 
-    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if(!text){
-      console.error('Gemini Response:',data);
-      throw new Error('Gemini لم يرجع نتيجة.');
-    }
-
+    // محاولة استخراج النتيجة من استجابة الـ Worker
     let result;
-    try{
-      result=JSON.parse(text);
-    }catch(error){
-      console.error('JSON:',text);
-      throw new Error('Gemini رجع بيانات غير صالحة.');
+    if(data.text){
+      // إذا رجع الـ Worker نص مباشر
+      try{
+        result=JSON.parse(data.text);
+      }catch(e){
+        result = { 
+          dish_name: "وجبة", 
+          total_calories: 0, 
+          protein_g: 0, 
+          carbs_g: 0, 
+          fat_g: 0, 
+          items: [],
+          raw: data.text 
+        };
+      }
+    } else if(data.candidates && data.candidates[0]?.content?.parts?.[0]?.text){
+      // إذا رجع Gemini JSON
+      try{
+        const text = data.candidates[0].content.parts[0].text;
+        result=JSON.parse(text);
+      }catch(e){
+        throw new Error('Gemini رجع بيانات غير صالحة');
+      }
+    } else {
+      // استخدام البيانات كـ JSON مباشر
+      result = data;
     }
 
     calLoadingArea.style.display='none';
@@ -847,7 +994,7 @@ async function calAnalyzeFood(){
     calLoadingArea.style.display='none';
     calPreviewArea.style.display='block';
     calAnalyzeBtn.disabled=false;
-    calErrorArea.innerHTML=`<div class="calErr">صار خطأ أثناء التحليل.<br><br>${calEscapeHtml(error.message)}</div>`;
+    calErrorArea.innerHTML=`<div class="calErr">❌ ${calEscapeHtml(error.message)}</div>`;
   }
 }
 
@@ -855,13 +1002,13 @@ function calRenderResult(d){
   const calories=Number(d.total_calories)||0;
 
   if(calories<=0){
-    calResultArea.innerHTML=`<div class="calResult"><div class="calErr">ما قدرت أتعرف على الطعام. حاول تصور الأكل من زاوية أوضح.</div></div>`;
+    calResultArea.innerHTML=`<div class="calResult"><div class="calErr">😅 ما قدرت أتعرف على الطعام. حاول تصور الأكل من زاوية أوضح مع إضاءة كافية.</div></div>`;
     calPreviewArea.style.display='block';
     return;
   }
 
   let itemsHtml='';
-  if(Array.isArray(d.items)){
+  if(Array.isArray(d.items) && d.items.length>0){
     itemsHtml=d.items.map(item=>`
       <div class="calItemRow">
         <span>${calEscapeHtml(item.name||'مكون')}</span>
@@ -870,19 +1017,26 @@ function calRenderResult(d){
     `).join('');
   }
 
+  // عرض النتيجة الخام إذا كانت موجودة (للحالات التي لم تتحلل)
+  let rawHtml = '';
+  if(d.raw){
+    rawHtml = `<div style="margin-top:15px;padding:15px;background:var(--panel);border-radius:12px;font-size:12px;color:var(--muted);direction:ltr;text-align:left;white-space:pre-wrap">${calEscapeHtml(d.raw)}</div>`;
+  }
+
   calResultArea.innerHTML=`
     <div class="calResult">
       <div class="calTotal">
         <div class="calNum">${calories}<span>سعرة حرارية</span></div>
         <div class="calName">${calEscapeHtml(d.dish_name||'وجبة')}</div>
-        <div class="calConf">دقة التقدير: ${calEscapeHtml(d.confidence||'متوسطة')}</div>
+        <div class="calConf">✅ تم التحليل</div>
       </div>
       <div class="calMacros">
         <div class="calMacro p"><b>${Number(d.protein_g)||0}g</b><span>بروتين</span></div>
         <div class="calMacro c"><b>${Number(d.carbs_g)||0}g</b><span>كربوهيدرات</span></div>
         <div class="calMacro f"><b>${Number(d.fat_g)||0}g</b><span>دهون</span></div>
       </div>
-      ${itemsHtml ? `<div class="calItems"><h4>مكونات الوجبة</h4>${itemsHtml}</div>` : ''}
+      ${itemsHtml ? `<div class="calItems"><h4>🧾 مكونات الوجبة</h4>${itemsHtml}</div>` : ''}
+      ${rawHtml}
     </div>
   `;
 
@@ -903,6 +1057,7 @@ window.addEventListener('load',()=>{
   showPage(document.getElementById(id)?id:'home');
   renderAchievements();
   renderReports();
+  applyGoal();
 });
 window.addEventListener('beforeunload',archiveToday);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden') archiveToday()});
