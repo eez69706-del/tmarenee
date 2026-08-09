@@ -1,4 +1,5 @@
-<!doctype html>
+
+ <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
@@ -830,9 +831,11 @@ function applyGoal(){
 
 /* =====================================================
    📸 تصوير السعرات — يحلل صورة الأكل عبر Gemini
-   تم تعديل الكود ليكون متوافقاً مع Worker
+   المصدر مقيّد بالكاميرا فقط (capture="environment"):
+   ما فيه خيار "إضافة من المعرض"، فقط تصوير مباشر.
 ===================================================== */
-// ⚠️ ضع هنا رابط الـ Worker الخاص بك
+// ⚠️ ضع هنا رابط الـ Worker اللي أنشأته على Cloudflare (بدون أي مفتاح داخل هذا الملف)
+// مثال: "https://food-calories-proxy.username.workers.dev"
 const CAL_PROXY_URL = "https://morning-math-f03a.eez69706.workers.dev";
 
 const calCameraBtn=document.getElementById('calCameraBtn');
@@ -909,80 +912,83 @@ async function calAnalyzeFood(){
   calAnalyzeBtn.disabled=true;
 
   try{
-    // ⚠️ تم التعديل هنا: إرسال الصورة مع التعليمات في نفس الطلب
+    const responseSchema={
+      type:"OBJECT",
+      properties:{
+        dish_name:{type:"STRING"},
+        total_calories:{type:"INTEGER"},
+        confidence:{type:"STRING",enum:["عالية","متوسطة","منخفضة"]},
+        protein_g:{type:"NUMBER"},
+        carbs_g:{type:"NUMBER"},
+        fat_g:{type:"NUMBER"},
+        items:{
+          type:"ARRAY",
+          items:{
+            type:"OBJECT",
+            properties:{
+              name:{type:"STRING"},
+              calories:{type:"INTEGER"}
+            },
+            required:["name","calories"]
+          }
+        }
+      },
+      required:["dish_name","total_calories","confidence","protein_g","carbs_g","fat_g","items"]
+    };
+
     const response=await fetch(CAL_PROXY_URL,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
         contents:[{
           parts:[
-            {
-              inline_data: {
-                mime_type: calMediaType,
-                data: calBase64
-              }
-            },
-            {
-              text: `أنت خبير في تحليل الطعام. حلل هذه الصورة وأعطيني:
-1. اسم الوجبة
-2. إجمالي السعرات
-3. كمية البروتين (بالجرام)
-4. كمية الكربوهيدرات (بالجرام)
-5. كمية الدهون (بالجرام)
-6. قائمة المكونات الظاهرة مع سعرات كل مكون
-
-أجب فقط بالبيانات المطلوبة بهذا التنسيق:
-{
-  "dish_name": "اسم الوجبة",
-  "total_calories": 0,
-  "protein_g": 0,
-  "carbs_g": 0,
-  "fat_g": 0,
-  "items": [
-    {"name": "اسم المكون", "calories": 0}
-  ]
-}`
-            }
+            {inline_data:{mime_type:calMediaType,data:calBase64}},
+            {text:`
+أنت خبير في تحليل الطعام والسعرات.
+حلل صورة الطعام.
+حدد:
+1. اسم الوجبة.
+2. إجمالي السعرات.
+3. البروتين.
+4. الكربوهيدرات.
+5. الدهون.
+6. كل مكون ظاهر في الصورة وسعراته.
+قدّر حجم الحصة من الصورة.
+لا تضف مكونات غير ظاهرة.
+إذا لم يكن هناك طعام واضح:
+اجعل total_calories = 0
+و items = [].
+أجب بالبيانات المطلوبة فقط.
+            `}
           ]
-        }]
+        }],
+        generationConfig:{
+          temperature:0.1,
+          responseMimeType:'application/json',
+          responseSchema:responseSchema
+        }
       })
     });
 
     const data=await response.json();
 
     if(!response.ok){
-      console.error('Worker Error:',data);
-      throw new Error(data?.error?.message || data?.error || 'خطأ في تحليل الصورة');
+      console.error('Gemini Error:',data);
+      throw new Error(data?.error?.message || 'خطأ في Gemini API');
     }
 
-    // محاولة استخراج النتيجة من استجابة الـ Worker
+    const text=data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if(!text){
+      console.error('Gemini Response:',data);
+      throw new Error('Gemini لم يرجع نتيجة.');
+    }
+
     let result;
-    if(data.text){
-      // إذا رجع الـ Worker نص مباشر
-      try{
-        result=JSON.parse(data.text);
-      }catch(e){
-        result = { 
-          dish_name: "وجبة", 
-          total_calories: 0, 
-          protein_g: 0, 
-          carbs_g: 0, 
-          fat_g: 0, 
-          items: [],
-          raw: data.text 
-        };
-      }
-    } else if(data.candidates && data.candidates[0]?.content?.parts?.[0]?.text){
-      // إذا رجع Gemini JSON
-      try{
-        const text = data.candidates[0].content.parts[0].text;
-        result=JSON.parse(text);
-      }catch(e){
-        throw new Error('Gemini رجع بيانات غير صالحة');
-      }
-    } else {
-      // استخدام البيانات كـ JSON مباشر
-      result = data;
+    try{
+      result=JSON.parse(text);
+    }catch(error){
+      console.error('JSON:',text);
+      throw new Error('Gemini رجع بيانات غير صالحة.');
     }
 
     calLoadingArea.style.display='none';
@@ -994,7 +1000,7 @@ async function calAnalyzeFood(){
     calLoadingArea.style.display='none';
     calPreviewArea.style.display='block';
     calAnalyzeBtn.disabled=false;
-    calErrorArea.innerHTML=`<div class="calErr">❌ ${calEscapeHtml(error.message)}</div>`;
+    calErrorArea.innerHTML=`<div class="calErr">صار خطأ أثناء التحليل.<br><br>${calEscapeHtml(error.message)}</div>`;
   }
 }
 
@@ -1002,13 +1008,13 @@ function calRenderResult(d){
   const calories=Number(d.total_calories)||0;
 
   if(calories<=0){
-    calResultArea.innerHTML=`<div class="calResult"><div class="calErr">😅 ما قدرت أتعرف على الطعام. حاول تصور الأكل من زاوية أوضح مع إضاءة كافية.</div></div>`;
+    calResultArea.innerHTML=`<div class="calResult"><div class="calErr">ما قدرت أتعرف على الطعام. حاول تصور الأكل من زاوية أوضح.</div></div>`;
     calPreviewArea.style.display='block';
     return;
   }
 
   let itemsHtml='';
-  if(Array.isArray(d.items) && d.items.length>0){
+  if(Array.isArray(d.items)){
     itemsHtml=d.items.map(item=>`
       <div class="calItemRow">
         <span>${calEscapeHtml(item.name||'مكون')}</span>
@@ -1017,26 +1023,19 @@ function calRenderResult(d){
     `).join('');
   }
 
-  // عرض النتيجة الخام إذا كانت موجودة (للحالات التي لم تتحلل)
-  let rawHtml = '';
-  if(d.raw){
-    rawHtml = `<div style="margin-top:15px;padding:15px;background:var(--panel);border-radius:12px;font-size:12px;color:var(--muted);direction:ltr;text-align:left;white-space:pre-wrap">${calEscapeHtml(d.raw)}</div>`;
-  }
-
   calResultArea.innerHTML=`
     <div class="calResult">
       <div class="calTotal">
         <div class="calNum">${calories}<span>سعرة حرارية</span></div>
         <div class="calName">${calEscapeHtml(d.dish_name||'وجبة')}</div>
-        <div class="calConf">✅ تم التحليل</div>
+        <div class="calConf">دقة التقدير: ${calEscapeHtml(d.confidence||'متوسطة')}</div>
       </div>
       <div class="calMacros">
         <div class="calMacro p"><b>${Number(d.protein_g)||0}g</b><span>بروتين</span></div>
         <div class="calMacro c"><b>${Number(d.carbs_g)||0}g</b><span>كربوهيدرات</span></div>
         <div class="calMacro f"><b>${Number(d.fat_g)||0}g</b><span>دهون</span></div>
       </div>
-      ${itemsHtml ? `<div class="calItems"><h4>🧾 مكونات الوجبة</h4>${itemsHtml}</div>` : ''}
-      ${rawHtml}
+      ${itemsHtml ? `<div class="calItems"><h4>مكونات الوجبة</h4>${itemsHtml}</div>` : ''}
     </div>
   `;
 
